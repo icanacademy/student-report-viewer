@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Report Viewer</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>📊 Student Report Viewer</h1>
+            <p class="subtitle">View and analyze ICAN STELLAR daily monitoring reports</p>
+        </header>
+
+        <div class="filters-section">
+            <div class="filter-group">
+                <label for="studentSelect">Select Student:</label>
+                <div class="searchable-dropdown">
+                    <input type="text" id="studentSearch" placeholder="Search students..." autocomplete="off">
+                    <div class="dropdown-list" id="studentDropdown"></div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate">
+            </div>
+
+            <div class="filter-group">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate">
+            </div>
+
+            <div class="filter-group">
+                <label for="teacherFilter">Teacher:</label>
+                <select id="teacherFilter">
+                    <option value="">All Teachers</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="subjectFilter">Subject:</label>
+                <select id="subjectFilter">
+                    <option value="">All Subjects</option>
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <button id="applyFilters" class="btn-primary">Apply Filters</button>
+                <button id="clearFilters" class="btn-secondary">Clear</button>
+            </div>
+        </div>
+
+        <div id="aiAnalysisSection" class="ai-analysis-section" style="display: none;">
+            <div class="section-header">
+                <h2>🤖 AI-Powered Analysis</h2>
+                <button id="generateAiAnalysis" class="btn-primary">Generate AI Analysis</button>
+            </div>
+            <div class="filter-info" id="filterInfo" style="display: none;">
+                <p><strong>📌 Analysis based on:</strong> <span id="filterDescription"></span></p>
+            </div>
+
+            <div id="aiLoadingState" class="loading-state" style="display: none;">
+                <div class="spinner"></div>
+                <p>AI is analyzing student performance data...</p>
+            </div>
+
+            <div id="aiContent" style="display: none;">
+                <!-- Charts Section -->
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>📊 Performance Radar</h3>
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>📈 Ratings Over Time</h3>
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>📉 Top Weaknesses</h3>
+                        <canvas id="barChart"></canvas>
+                    </div>
+                    <div class="chart-card" id="scoresChartCard" style="display: none;">
+                        <h3>📝 Score Performance</h3>
+                        <canvas id="scoresChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- AI Insights -->
+                <div class="ai-insights">
+                    <div class="insight-card strengths-card">
+                        <h3>💪 Strengths</h3>
+                        <ul id="strengthsList"></ul>
+                    </div>
+
+                    <div class="insight-card weaknesses-card">
+                        <h3>⚠️ Weakness Patterns</h3>
+                        <div id="weaknessesList"></div>
+                    </div>
+
+                    <div class="insight-card recommendations-card">
+                        <h3>💡 Recommendations</h3>
+                        <ul id="recommendationsList"></ul>
+                    </div>
+
+                    <div class="insight-card insights-card">
+                        <h3>🎯 Progress Insights</h3>
+                        <p id="insightsText"></p>
+                        <div class="trend-badge" id="trendBadge"></div>
+                    </div>
+
+                    <div class="insight-card scores-insights-card" id="scoresInsightsCard" style="display: none;">
+                        <h3>📊 Score Performance Insights</h3>
+                        <div id="scoresInsightsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="analyticsSection" class="analytics-section" style="display: none;">
+            <h2>📈 Student Analytics</h2>
+            <div class="analytics-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Reports</div>
+                    <div class="stat-value" id="totalReports">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Attention</div>
+                    <div class="stat-value" id="avgAttention">0</div>
+                    <div class="stat-stars" id="starsAttention"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Retention</div>
+                    <div class="stat-value" id="avgRetention">0</div>
+                    <div class="stat-stars" id="starsRetention"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Comprehension</div>
+                    <div class="stat-value" id="avgComprehension">0</div>
+                    <div class="stat-stars" id="starsComprehension"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Behavior</div>
+                    <div class="stat-value" id="avgBehavior">0</div>
+                    <div class="stat-stars" id="starsBehavior"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Skill Focus Met</div>
+                    <div class="stat-value" id="skillFocusMet">0%</div>
+                </div>
+            </div>
+
+            <div class="analytics-details">
+                <div class="detail-card">
+                    <h3>Subjects Breakdown</h3>
+                    <div id="subjectsBreakdown" class="breakdown-list"></div>
+                </div>
+                <div class="detail-card">
+                    <h3>Teachers</h3>
+                    <div id="teachersBreakdown" class="breakdown-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="reportsSection" class="reports-section">
+            <div class="section-header">
+                <h2>📝 Reports</h2>
+                <div id="reportCount" class="report-count"></div>
+            </div>
+            <div id="reportsList" class="reports-list">
+                <div class="empty-state">
+                    <p>👆 Select a student to view their reports</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
